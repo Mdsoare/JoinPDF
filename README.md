@@ -52,8 +52,10 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 
 ```text
 .
+├── .gitignore                     # Aquivo de configuração do git
 ├── BouncyCastle.Cryptography.dll  # Biblioteca de criptografia / dependência iTextSharp
 ├── itextsharp.dll                 # Motor de manipulação e montagem de PDFs (.NET)
+├── joinPDFs_alternative.ps1       # Script de automação PowerShell alternativo
 ├── joinPDFs.ps1                   # Script de automação PowerShell
 └── README.md                      # Documentação do projeto
 ```
