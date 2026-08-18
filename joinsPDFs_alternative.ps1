@@ -1,11 +1,11 @@
-# Define os caminhos
+﻿# Define os caminhos
 $diretorio = $PSScriptRoot
 if(!$diretorio) { $diretorio = $pwd } # Garante que pega a pasta atual
 $outputFile = Join-Path $diretorio "ResultadoFinal.pdf"
 $arquivos = Get-ChildItem -Path "$diretorio\*.pdf" -Exclude "ResultadoFinal.pdf" | Sort-Object Name
 
 try {
-    Write-Output "Iniciando o Word para processar os arquivos..." -ForegroundColor Cyan
+    Write-Output "Iniciando o Word para processar os arquivos..."
     $word = New-Object -ComObject Word.Application
     $word.Visible = $false  # O Word não vai aparecer na tela
     
@@ -24,10 +24,10 @@ try {
     # Salva o resultado final como PDF
     $documentoFinal.ExportAsFixedFormat($outputFile, 17) # 17 = Formato PDF
     
-    Write-Output "`nSucesso! O arquivo foi gerado em: $outputFile" -ForegroundColor Green
+    Write-Output "`nSucesso! O arquivo foi gerado em: $outputFile"
 }
 catch {
-    Write-Output "Erro ao processar: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Output "Erro ao processar: $($_.Exception.Message)"
 }
 finally {
     # Fecha o Word obrigatoriamente para não travar o PC
