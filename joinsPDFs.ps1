@@ -12,7 +12,7 @@ $copy = New-Object iTextSharp.text.pdf.PdfCopy($doc, $stream)
 $doc.Open()
 
 foreach ($file in $pdfs) {
-    Write-Host "Processando: $($file.Name)"
+    Write-Output "Processando: $($file.Name)"
     $reader = New-Object iTextSharp.text.pdf.PdfReader($file.FullName)
     for ($i = 1; $i -le $reader.NumberOfPages; $i++) {
         $page = $copy.GetImportedPage($reader, $i)
@@ -23,4 +23,4 @@ foreach ($file in $pdfs) {
 
 $doc.Close()
 $stream.Close()
-Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green
+Write-Output "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green

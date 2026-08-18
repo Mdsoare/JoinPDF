@@ -5,7 +5,7 @@ $outputFile = Join-Path $diretorio "ResultadoFinal.pdf"
 $arquivos = Get-ChildItem -Path "$diretorio\*.pdf" -Exclude "ResultadoFinal.pdf" | Sort-Object Name
 
 try {
-    Write-Host "Iniciando o Word para processar os arquivos..." -ForegroundColor Cyan
+    Write-Output "Iniciando o Word para processar os arquivos..." -ForegroundColor Cyan
     $word = New-Object -ComObject Word.Application
     $word.Visible = $false  # O Word não vai aparecer na tela
     
@@ -14,7 +14,7 @@ try {
     $selecao = $word.Selection
 
     foreach ($arquivo in $arquivos) {
-        Write-Host "Mesclando: $($arquivo.Name)"
+        Write-Output "Mesclando: $($arquivo.Name)"
         # Insere o conteúdo do PDF no documento do Word
         $selecao.InsertFile($arquivo.FullName)
         # Adiciona uma quebra de página para o próximo certificado não colar no anterior
@@ -24,10 +24,10 @@ try {
     # Salva o resultado final como PDF
     $documentoFinal.ExportAsFixedFormat($outputFile, 17) # 17 = Formato PDF
     
-    Write-Host "`nSucesso! O arquivo foi gerado em: $outputFile" -ForegroundColor Green
+    Write-Output "`nSucesso! O arquivo foi gerado em: $outputFile" -ForegroundColor Green
 }
 catch {
-    Write-Host "Erro ao processar: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Output "Erro ao processar: $($_.Exception.Message)" -ForegroundColor Red
 }
 finally {
     # Fecha o Word obrigatoriamente para não travar o PC
