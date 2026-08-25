@@ -8,7 +8,6 @@ try {
     Write-Output "Iniciando o Word para processar os arquivos..."
     $word = New-Object -ComObject Word.Application
     $word.Visible = $false  # O Word não vai aparecer na tela
-    
     # Cria um documento novo que servirá de base
     $documentoFinal = $word.Documents.Add()
     $selecao = $word.Selection
@@ -23,7 +22,6 @@ try {
 
     # Salva o resultado final como PDF
     $documentoFinal.ExportAsFixedFormat($outputFile, 17) # 17 = Formato PDF
-    
     Write-Output "`nSucesso! O arquivo foi gerado em: $outputFile"
 }
 catch {
@@ -33,7 +31,6 @@ finally {
     # Fecha o Word obrigatoriamente para não travar o PC
     if ($documentoFinal) { $documentoFinal.Close($false) }
     if ($word) { $word.Quit() }
-    
     # Remove o objeto da memória
     [System.Runtime.Interopservices.Marshal]::ReleaseComObject($word) | Out-Null
 }
