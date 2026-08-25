@@ -1,0 +1,22 @@
+# Caches, Configurações de Editor e Arquivos Temporários
+.vscode/
+.cache/
+*.tmp
+*.log
+
+# Módulos de Terceiros e Dependências Externas (Vendor)
+Modules/
+packages/
+vendor/
+
+# Artefatos de Build, Deploy e Empacotamento
+build/
+out/
+dist/
+artifacts/
+build_artifact/
+
+# Relatórios de Segurança, Testes (Pester) e Dumps
+*.sarif
+*.json
+*.xml

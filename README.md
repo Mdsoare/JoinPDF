@@ -1,14 +1,24 @@
 # PDF Merge Tool (PowerShell + iTextSharp)
 
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://docs.microsoft.com/en-us/powershell/)
+<!-- Badges do Topo -->
 [![Security Compliance](https://img.shields.io/badge/Security-Local%20Only%20%2F%20Zero%20Trust-green.svg)](#segurança-e-compliance-devsecops)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+[![CI Pipeline](https://github.com/Mdsoare/JoinPDF/actions/workflows/security-scan.yml/badge.svg)](https://github.com/Mdsoare/JoinPDF/actions/workflows/security-scan.yml)
+[![Security Rating](https://img.shields.io/badge/Security-DevSecOps%20Hardened-green?style=flat&logo=github)](https://github.com/Mdsoare/JoinPDF/security/code-scanning)
+![Code Style: PSScriptAnalyzer](https://img.shields.io/badge/code%20style-PSScriptAnalyzer-5391FE.svg?logo=powershell)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-Utilitário em PowerShell para fusão (*merge*) automatizada de arquivos PDF localmente em ambientes Windows, com foco em **privacidade de dados (LGPD)**, **desempenho** e **segurança da informação**.
+<!-- Tech Stack & DevSecOps Ecosystem -->
+[![PowerShell](https://img.shields.io/badge/PowerShell-7.0%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Dependabot](https://img.shields.io/badge/Dependabot-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
+![SAST & SCA](https://img.shields.io/badge/DevSecOps-SAST%20%26%20SCA-red?style=for-the-badge&logo=github-actions&logoColor=white)
+
+Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF localmente em ambientes Windows, com foco em **privacidade de dados (LGPD)**, **desempenho** e **segurança da informação**.
 
 ---
 
 ## 📋 Sumário
+
 - [Visão Geral](#visão-geral)
 - [Por que usar esta solução? (Perspectiva DevSecOps)](#por-que-usar-esta-solução-perspectiva-devsecops)
 - [Pré-requisitos](#pré-requisitos)
@@ -23,7 +33,7 @@ Utilitário em PowerShell para fusão (*merge*) automatizada de arquivos PDF loc
 
 ## 🔍 Visão Geral
 
-Em ambientes corporativos, a unificação de documentos PDF que contêm informações sensíveis (PII, relatórios financeiros, logs de auditoria ou documentos jurídicos) muitas vezes leva usuários a recorrerem a ferramentas web gratuitas. Essa prática representa um alto risco de vazamento de dados (*Data Exfiltration*) e não conformidade com a **LGPD (Lei Geral de Proteção de Dados)**.
+Em ambientes corporativos, a unificação de documentos PDF que contêm informações sensíveis (PII, relatórios financeiros, logs de auditoria ou documentos jurídicos) muitas vezes leva usuários a recorrerem a ferramentas web gratuitas. Essa prática representa um alto risco de vazamento de dados (_Data Exfiltration_) e não conformidade com a **LGPD (Lei Geral de Proteção de Dados)**.
 
 Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% offline**, utilizando bibliotecas consolidadas (`iTextSharp` e `BouncyCastle`) diretamente via Scripting em PowerShell.
 
@@ -65,7 +75,9 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 ## 🚀 Guia de Uso Passo a Passo
 
 ### 1º Passo: Copiar os arquivos necessários
+
 Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arquivos PDF que você deseja juntar:
+
 - `BouncyCastle.Cryptography.dll`
 - `itextsharp.dll`
 - `joinPDFs.ps1`
@@ -73,26 +85,30 @@ Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arqui
 ---
 
 ### 2º Passo: Abrir o PowerShell no diretório
+
 1. Navegue até a pasta onde estão os arquivos.
 2. Mantenha a tecla **`Shift`** pressionada.
 3. Clique com o **botão direito do mouse** em um espaço em branco da pasta.
-4. Selecione a opção **"Abrir janela do PowerShell aqui"** (ou *"Abrir no Terminal"* no Windows 11).
+4. Selecione a opção **"Abrir janela do PowerShell aqui"** (ou _"Abrir no Terminal"_ no Windows 11).
 
 ---
 
 ### 3º Passo: Executar o script
+
 Execute o comando abaixo no PowerShell:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\joinPDFs.ps1
 ```
 
-> **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (*Execution Policy*).
+> **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (_Execution Policy_).
 
 ---
 
 ### 4º Passo: Localizar o resultado
+
 Ao finalizar a execução, o arquivo unificado será gerado no mesmo diretório com o nome:
+
 - **`Resultado_Final.pdf`**
 
 O script ignorará automaticamente o arquivo `Resultado_Final.pdf` em execuções subsequentes na mesma pasta, evitando loops ou reprocessamento do arquivo consolidado.
@@ -140,7 +156,8 @@ Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Gr
 ## 🛡️ Segurança e Compliance (DevSecOps)
 
 ### Análise de Segurança dos Binários (DLLs)
-Para garantir a integridade da cadeia de suprimentos de software (*Software Supply Chain Security*), valide as assinaturas/hashes das DLLs fornecidas no repositório antes da primeira execução:
+
+Para garantir a integridade da cadeia de suprimentos de software (_Software Supply Chain Security_), valide as assinaturas/hashes das DLLs fornecidas no repositório antes da primeira execução:
 
 ```powershell
 # Verificação de Hash SHA256 no PowerShell
@@ -148,6 +165,7 @@ Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256
 ```
 
 ### Controles de Segurança Implementados
+
 - **Isolamento de Processo:** Sem tráfego de rede ou chamadas de API externas.
 - **Sanitização de Escopo de Execução:** O uso do `-ExecutionPolicy Bypass` limita-se ao processo filho e não afeta a postura global de execução do repositório/SO.
 - **Tratamento de Arquivo de Saída:** O filtro `-Exclude $outputFile` previne corrupção de arquivo por auto-ingestão ou substituição acidental durante a leitura.
@@ -156,12 +174,12 @@ Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256
 
 ## ⚠️ Solução de Problemas (Troubleshooting)
 
-| Erro / Problema | Causa Provável | Solução |
-| :--- | :--- | :--- |
-| `Add-Type : Could not load file or assembly...` | DLLs bloqueadas pelo Windows após download ou caminho incorreto. | Clique com o botão direito nas DLLs > Propriedades > Marque **"Desbloquear"** (Unblock) > Aplicar. |
-| `O arquivo já está sendo usado por outro processo` | O PDF resultante ou um dos arquivos de entrada está aberto em um leitor de PDF. | Feche o leitor de PDF (Acrobat, Edge, Chrome, etc.) e execute novamente. |
-| `A execução de scripts foi desabilitada neste sistema` | Restrição de política local do PowerShell. | Certifique-se de incluir a flag `-ExecutionPolicy Bypass` ao chamar o script. |
-| `Arquivo corrompido ao abrir` | Algum PDF de origem está protegido por senha ou corrompido. | Remova a proteção por senha do PDF de origem antes de rodar a mesclagem. |
+| Erro / Problema                                        | Causa Provável                                                                  | Solução                                                                                            |
+| :----------------------------------------------------- | :------------------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------- |
+| `Add-Type : Could not load file or assembly...`        | DLLs bloqueadas pelo Windows após download ou caminho incorreto.                | Clique com o botão direito nas DLLs > Propriedades > Marque **"Desbloquear"** (Unblock) > Aplicar. |
+| `O arquivo já está sendo usado por outro processo`     | O PDF resultante ou um dos arquivos de entrada está aberto em um leitor de PDF. | Feche o leitor de PDF (Acrobat, Edge, Chrome, etc.) e execute novamente.                           |
+| `A execução de scripts foi desabilitada neste sistema` | Restrição de política local do PowerShell.                                      | Certifique-se de incluir a flag `-ExecutionPolicy Bypass` ao chamar o script.                      |
+| `Arquivo corrompido ao abrir`                          | Algum PDF de origem está protegido por senha ou corrompido.                     | Remova a proteção por senha do PDF de origem antes de rodar a mesclagem.                           |
 
 ---
 

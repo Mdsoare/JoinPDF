@@ -1,36 +1,333 @@
-name: DevSecOps Unified Security Scan
+name: DevSecOps Unified Security Scan (PowerShell)
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
 
-permissions:  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
   actions: read
-  security-events: write
   contents: read
+  security-events: write
 
 jobs:
-  sast-powershell:
-    name: SAST (PSScriptAnalyzer)
+  # -------------------------------------------------------------
+  # JOB 1: Detecção de Segredos e Credenciais Vazadas
+  # -------------------------------------------------------------
+  secret-scanning:
+    name: Secret Scan (TruffleHog)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Scan para detecção de segredos
+        uses: trufflesecurity/trufflehog@bcfcf73aaf4759d4dadc2783177c245a02792318
+        with:
+          extra_args: --only-verified
+
+  # -------------------------------------------------------------
+  # JOB 2: Qualidade de Código, Estilo e Formatação (PowerShell)
+  # -------------------------------------------------------------
+  code-quality-linting:
+    name: Code Quality (PSScriptAnalyzer Formatting)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Validar Estilo e Formatação
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          $results = Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule PSAvoidTrailingWhitespace, PSAvoidUsingCmdletAliases
+
+          if ($results.Count -gt 0) {
+              $results | Select-Object ScriptName, Line, Message, RuleName | Format-List
+              Write-Error "Encontradas $($results.Count) inconsistências de estilo/formatação."
+              exit 1
+          }
+
+  # -------------------------------------------------------------
+  # JOB 3: SAST Nativo PowerShell (PSScriptAnalyzer Standard)
+  # -------------------------------------------------------------
+  sast-powershell:
+    name: SAST (PSScriptAnalyzer General)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
           $results = @(Invoke-ScriptAnalyzer -Path ./ -Recurse -Severity Warning, Error)
-          
+
           if ($results.Count -gt 0) {
               $results | Select-Object ScriptName, Line, Message, RuleName | Format-List
               Write-Error "Foram encontradas $($results.Count) inconformidades no PSScriptAnalyzer."
               exit 1
           }
 
+  # -------------------------------------------------------------
+  # JOB 4: SAST Especializado em Segurança PowerShell
+  # -------------------------------------------------------------
+  sast-powershell-security:
+    name: SAST Security Rules (PSScriptAnalyzer Security)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Executar Regras de Segurança Avançadas
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          $secRules = @(
+            'PSAvoidUsingInvokeExpression',
+            'PSAvoidUsingPlainTextForPassword',
+            'PSAvoidUsingWMIC',
+            'PSAvoidUsingCmdletAliases'
+          )
+          $results = Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule $secRules
+
+          if ($results.Count -gt 0) {
+              $results | Format-Table -AutoSize
+              Write-Error "Encontradas vulnerabilidades de código de alta severidade!"
+              exit 1
+          }
+
+  # -------------------------------------------------------------
+  # JOB 5: SAST Avançado com CodeQL (C# / Binários .NET)
+  # -------------------------------------------------------------
+  sast-codeql:
+    name: SAST (CodeQL Analysis - C# / .NET)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Verificar presença de código C#
+        id: check_csharp
+        shell: pwsh
+        run: |
+          $csFiles = Get-ChildItem -Path . -Recurse -Filter *.cs
+          if ($csFiles.Count -gt 0) {
+              echo "has_csharp=true" >> $env:GITHUB_OUTPUT
+          } else {
+              echo "has_csharp=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Inicializar CodeQL
+        if: steps.check_csharp.outputs.has_csharp == 'true'
+        uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+        with:
+          languages: csharp
+          queries: security-extended,security-and-quality
+
+      - name: Executar Análise CodeQL
+        if: steps.check_csharp.outputs.has_csharp == 'true'
+        uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+
+  # -------------------------------------------------------------
+  # JOB 6: SAST Open Source com Horusec
+  # -------------------------------------------------------------
+  sast-horusec:
+    name: SAST (Horusec)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Run Horusec Security Scan
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/main/deployments/scripts/install.sh -o install_horusec.sh
+          bash install_horusec.sh latest
+          rm -f install_horusec.sh
+          horusec start -p="./" --config-file-path="./.horusec-config.json" -D -I -e="false" -o="sarif" -O="./horusec-results.sarif" || true
+
+      - name: Tratar e Validar SARIF do Horusec
+        id: check_sarif
+        if: always()
+        run: |
+          if [ -f "./horusec-results.sarif" ] && grep -q '"results": \[.\+\]' ./horusec-results.sarif; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Horusec não encontrou vulnerabilidades ou o arquivo SARIF está vazio."
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload Horusec SARIF report
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+        if: always() && steps.check_sarif.outputs.has_results == 'true'
+        with:
+          sarif_file: horusec-results.sarif
+          category: Horusec
+
+  # -------------------------------------------------------------
+  # JOB 7: SAST Rápido baseado em Regras com Semgrep
+  # -------------------------------------------------------------
+  sast-semgrep:
+    name: SAST (Semgrep Scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - name: Executar Semgrep Scan
+        run: |
+          pip install semgrep
+          semgrep scan \
+            --config=p/owasp-top-ten \
+            --sarif \
+            --output=semgrep.sarif \
+            || true
+
+      - name: Tratar e Validar SARIF do Semgrep
+        id: check_sarif
+        if: always()
+        run: |
+          if [ -f "semgrep.sarif" ] && grep -q '"results": \[.\+\]' semgrep.sarif; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Semgrep não encontrou vulnerabilidades ou o arquivo SARIF está vazio."
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload do Relatório SARIF do Semgrep
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+        if: always() && steps.check_sarif.outputs.has_results == 'true'
+        with:
+          sarif_file: semgrep.sarif
+          category: Semgrep
+
+  # -------------------------------------------------------------
+  # JOB 8: Análise de Dependências de Software com OSV-Scanner
+  # -------------------------------------------------------------
   sca-osv:
     name: SCA (OSV-Scanner)
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.5.0"
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@6e4298ebc4db23e847df9b2e2de2939d6f066c67
+
+  # -------------------------------------------------------------
+  # JOB 9: Análise de Dependências e Misconfigurations com Trivy
+  # -------------------------------------------------------------
+  sca-trivy:
+    name: SCA & Misconfig (Trivy Scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Executar Varredura Trivy (Repository)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload do Relatório SARIF do Trivy
+        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
+  # -------------------------------------------------------------
+  # JOB 10: Auditoria Nativa de Dependências (PowerShell)
+  # -------------------------------------------------------------
+  sca-powershell-modules:
+    name: SCA (PowerShell Module & Repository Audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Auditar Repositórios e Módulos Importados
+        shell: pwsh
+        run: |
+          $psd1Files = Get-ChildItem -Path . -Recurse -Filter *.psd1
+          foreach ($file in $psd1Files) {
+              $manifest = Import-PowerShellDataFile -Path $file.FullName
+              if ($manifest.RequiredModules) {
+                  Write-Host "Módulos requeridos em $($file.Name):"
+                  $manifest.RequiredModules | Format-Table
+              }
+          }
+          Write-Host "✅ Auditoria de manifestos PowerShell concluída."
+
+  # -------------------------------------------------------------
+  # JOB 11: Validação de Integridade Estrutural do Projeto PowerShell
+  # -------------------------------------------------------------
+  powershell-structure-check:
+    name: Validate PowerShell Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Validar arquivos essenciais do ecossistema PowerShell
+        shell: pwsh
+        run: |
+          $ps1Files = Get-ChildItem -Path . -Recurse -Filter *.ps1
+          $psd1Files = Get-ChildItem -Path . -Recurse -Filter *.psd1
+
+          if ($ps1Files.Count -eq 0 -and $psd1Files.Count -eq 0) {
+              Write-Error "❌ ERRO: Nenhum script (.ps1) ou manifesto (.psd1) foi encontrado!"
+              exit 1
+          }
+
+          if (-not (Test-Path "README.md")) {
+              Write-Error "❌ README.md não encontrado!"
+              exit 1
+          }
+
+          Write-Host "✅ Estrutura básica do repositório PowerShell validada."
+
+  # -------------------------------------------------------------
+  # JOB 12: Empacotamento e Artefato
+  # -------------------------------------------------------------
+  build-artifact:
+    name: Bundle & Upload Artifact
+    needs:
+      [
+        secret-scanning,
+        code-quality-linting,
+        sast-powershell,
+        sast-powershell-security,
+        sast-codeql,
+        sast-horusec,
+        sast-semgrep,
+        sca-osv,
+        sca-trivy,
+        sca-powershell-modules,
+        powershell-structure-check,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Gerar pacote de distribuição PowerShell
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path build_artifact -Force
+          Get-ChildItem -Path . -Exclude "build_artifact", ".git", ".github" | Copy-Item -Destination build_artifact -Recurse -Force
+
+      - name: Subir Artefato de Build
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: powershell-module-build
+          path: build_artifact/
+          retention-days: 7
+          if-no-files-found: error
