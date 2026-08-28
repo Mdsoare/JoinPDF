@@ -21,15 +21,15 @@ Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF loc
 
 ## 📋 Sumário
 
-- [Visão Geral](#visao-geral)
-- [Por que usar esta solução? (Perspectiva DevSecOps)](#por-que-usar-esta-solucao-perspectiva-devsecops)
-- [Pré-requisitos](#pre-requisitos)
-- [Estrutura do Repositório](#estrutura-do-repositorio)
-- [Guia de Uso Passo a Passo](#guia-de-uso-passo-a-passo)
-- [Funcionamento do Código](#funcionamento-do-codigo)
-- [Segurança e Compliance (DevSecOps)](#seguranca-e-compliance-devsecops)
-- [Solução de Problemas (Troubleshooting)](#solucao-de-problemas-troubleshooting)
-- [Boas Práticas e Recomendações](#boas-praticas-e-recomendacoes)
+- [Visão Geral](#-visão-geral)
+- [Por que usar esta solução](#-por-que-usar-esta-solução)
+- [Pré-requisitos](#-pré-requisitos)
+- [Estrutura do Repositório](#-estrutura-do-repositório)
+- [Guia de Uso Passo a Passo](#-guia-de-uso-passo-a-passo)
+- [Funcionamento do Código](#-funcionamento-do-código)
+- [Segurança e Compliance](#-segurança-e-compliance)
+- [Solução de Problemas](#-solução-de-problemas)
+- [Boas Práticas e Recomendações](#-boas-práticas-e-recomendações)
 
 ---
 
