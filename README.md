@@ -19,20 +19,6 @@ Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF loc
 
 ---
 
-## 📋 Sumário
-
-- [Visão Geral](#-visão-geral)
-- [Por que usar esta solução](#por-que-usar-esta-solução)
-- [Pré-requisitos](#-pré-requisitos)
-- [Estrutura do Repositório](#-estrutura-do-repositório)
-- [Guia de Uso Passo a Passo](#-guia-de-uso-passo-a-passo)
-- [Funcionamento do Código](#-funcionamento-do-código)
-- [Segurança e Compliance](#-segurança-e-compliance)
-- [Solução de Problemas](#-solução-de-problemas)
-- [Boas Práticas e Recomendações](#-boas-práticas-e-recomendações)
-
----
-
 ## 🔍 Visão Geral
 
 Em ambientes corporativos, a unificação de documentos PDF que contêm informações sensíveis (PII, relatórios financeiros, logs de auditoria ou documentos jurídicos) muitas vezes leva usuários a recorrerem a ferramentas web gratuitas. Essa prática representa um alto risco de vazamento de dados (_Data Exfiltration_) e não conformidade com a **LGPD (Lei Geral de Proteção de Dados)**.
