@@ -1,17 +1,19 @@
 # PDF Merge Tool (PowerShell + iTextSharp)
 
 <!-- Badges do Topo -->
-[![Security Compliance](https://img.shields.io/badge/Security-Local%20Only%20%2F%20Zero%20Trust-green.svg)](#segurança-e-compliance-devsecops)
-[![CI Pipeline](https://github.com/Mdsoare/JoinPDF/actions/workflows/security-scan.yml/badge.svg)](https://github.com/Mdsoare/JoinPDF/actions/workflows/security-scan.yml)
-[![Security Rating](https://img.shields.io/badge/Security-DevSecOps%20Hardened-green?style=flat&logo=github)](https://github.com/Mdsoare/JoinPDF/security/code-scanning)
+![Security Compliance](https://img.shields.io/badge/Security-Local%20Only%20%2F%20Zero%20Trust-green.svg)
+![CI Pipeline](https://github.com/Mdsoare/JoinPDF/actions/workflows/security-scan.yml/badge.svg)
+![Security Rating](https://img.shields.io/badge/Security-DevSecOps%20Hardened-green?style=flat&logo=github)
 ![Code Style: PSScriptAnalyzer](https://img.shields.io/badge/code%20style-PSScriptAnalyzer-5391FE.svg?logo=powershell)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 <!-- Tech Stack & DevSecOps Ecosystem -->
-[![PowerShell](https://img.shields.io/badge/PowerShell-7.0%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+![PowerShell](https://img.shields.io/badge/PowerShell-7.0%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Dependabot](https://img.shields.io/badge/Dependabot-025E8C?style=for-the-badge&logo=dependabot&logoColor=white)
 ![SAST & SCA](https://img.shields.io/badge/DevSecOps-SAST%20%26%20SCA-red?style=for-the-badge&logo=github-actions&logoColor=white)
+
+---
 
 Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF localmente em ambientes Windows, com foco em **privacidade de dados (LGPD)**, **desempenho** e **segurança da informação**.
 
@@ -20,13 +22,21 @@ Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF loc
 ## 📋 Sumário
 
 - [Visão Geral](#visão-geral)
+
 - [Por que usar esta solução? (Perspectiva DevSecOps)](#por-que-usar-esta-solução-perspectiva-devsecops)
+
 - [Pré-requisitos](#pré-requisitos)
+
 - [Estrutura do Repositório](#estrutura-do-repositório)
+
 - [Guia de Uso Passo a Passo](#guia-de-uso-passo-a-passo)
+
 - [Funcionamento do Código](#funcionamento-do-código)
+
 - [Segurança e Compliance (DevSecOps)](#segurança-e-compliance-devsecops)
+
 - [Solução de Problemas (Troubleshooting)](#solução-de-problemas-troubleshooting)
+
 - [Boas Práticas e Recomendações](#boas-práticas-e-recomendações)
 
 ---
@@ -42,8 +52,11 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 ## 🔒 Por que usar esta solução? (Perspectiva DevSecOps)
 
 - **Air-Gapped & Local Processing:** Nenhum dado sai da máquina local. Não há chamadas HTTP/HTTPS ou conexões de rede ativas.
+
 - **Conformidade com LGPD:** Evita a transferência não autorizada de dados pessoais para servidores de terceiros ou cloud não homologada.
+
 - **Sem Dependência de Instalação Administrativa:** Não exige permissões de Administrador local (`Run as Admin`) para rodar, desde que a execução de scripts locais seja autorizada por política.
+
 - **Zero Custos de Licenciamento SaaS:** Elimina a necessidade de licenças pagas de softwares de terceiros para tarefas simples de manipulação de PDF.
 
 ---
@@ -51,8 +64,11 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 ## 🛠️ Pré-requisitos
 
 1. **Sistema Operacional:** Windows 10/11 ou Windows Server 2016+
+
 2. **PowerShell:** Versão 5.1 ou superior (já nativo no Windows).
+
 3. **Bibliotecas .NET (incluídas no diretório):**
+
    - `BouncyCastle.Cryptography.dll`
    - `itextsharp.dll`
 
@@ -79,7 +95,9 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arquivos PDF que você deseja juntar:
 
 - `BouncyCastle.Cryptography.dll`
+
 - `itextsharp.dll`
+
 - `joinPDFs.ps1`
 
 ---
@@ -87,8 +105,11 @@ Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arqui
 ### 2º Passo: Abrir o PowerShell no diretório
 
 1. Navegue até a pasta onde estão os arquivos.
+
 2. Mantenha a tecla **`Shift`** pressionada.
+
 3. Clique com o **botão direito do mouse** em um espaço em branco da pasta.
+
 4. Selecione a opção **"Abrir janela do PowerShell aqui"** (ou _"Abrir no Terminal"_ no Windows 11).
 
 ---
@@ -97,11 +118,11 @@ Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arqui
 
 Execute o comando abaixo no PowerShell:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\joinPDFs.ps1
-```
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File .\joinPDFs.ps1
+    ```
 
-> **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (_Execution Policy_).
+    > **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (_Execution Policy_).
 
 ---
 
@@ -119,37 +140,37 @@ O script ignorará automaticamente o arquivo `Resultado_Final.pdf` em execuçõe
 
 O script `joinPDFs.ps1` utiliza o ecossistema .NET nativo e as DLLs do iTextSharp para realizar a mesclagem diretamente em memória:
 
-```powershell
-# 1. Carregamento dinamico das DLLs locais .NET
-Add-Type -Path (Resolve-Path ".\BouncyCastle.Cryptography.dll")
-Add-Type -Path (Resolve-Path ".\itextsharp.dll")
+    ```powershell
+    # 1. Carregamento dinamico das DLLs locais .NET
+    Add-Type -Path (Resolve-Path ".\BouncyCastle.Cryptography.dll")
+    Add-Type -Path (Resolve-Path ".\itextsharp.dll")
 
-# 2. Definição do arquivo de saída e listagem dos PDFs (excluindo o arquivo final)
-$outputFile = "Resultado_Final.pdf"
-$pdfs = Get-ChildItem *.pdf -Exclude $outputFile
+    # 2. Definição do arquivo de saída e listagem dos PDFs (excluindo o arquivo final)
+    $outputFile = "Resultado_Final.pdf"
+    $pdfs = Get-ChildItem *.pdf -Exclude $outputFile
 
-# 3. Inicialização dos objetos iTextSharp e Stream de escrita
-$doc = New-Object iTextSharp.text.Document
-$stream = [System.IO.File]::Create((Join-Path $pwd $outputFile))
-$copy = New-Object iTextSharp.text.pdf.PdfCopy($doc, $stream)
-$doc.Open()
+    # 3. Inicialização dos objetos iTextSharp e Stream de escrita
+    $doc = New-Object iTextSharp.text.Document
+    $stream = [System.IO.File]::Create((Join-Path $pwd $outputFile))
+    $copy = New-Object iTextSharp.text.pdf.PdfCopy($doc, $stream)
+    $doc.Open()
 
-# 4. Iteração página a página entre todos os PDFs encontrados
-foreach ($file in $pdfs) {
-    Write-Host "Processando: $($file.Name)"
-    $reader = New-Object iTextSharp.text.pdf.PdfReader($file.FullName)
-    for ($i = 1; $i -le $reader.NumberOfPages; $i++) {
-        $page = $copy.GetImportedPage($reader, $i)
-        $copy.AddPage($page)
+    # 4. Iteração página a página entre todos os PDFs encontrados
+    foreach ($file in $pdfs) {
+        Write-Host "Processando: $($file.Name)"
+        $reader = New-Object iTextSharp.text.pdf.PdfReader($file.FullName)
+        for ($i = 1; $i -le $reader.NumberOfPages; $i++) {
+            $page = $copy.GetImportedPage($reader, $i)
+            $copy.AddPage($page)
+        }
+        $reader.Close()
     }
-    $reader.Close()
-}
 
-# 5. Encerramento dos handlers de arquivo e desalocação de memória
-$doc.Close()
-$stream.Close()
-Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green
-```
+    # 5. Encerramento dos handlers de arquivo e desalocação de memória
+    $doc.Close()
+    $stream.Close()
+    Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green
+    ```
 
 ---
 
@@ -159,15 +180,17 @@ Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Gr
 
 Para garantir a integridade da cadeia de suprimentos de software (_Software Supply Chain Security_), valide as assinaturas/hashes das DLLs fornecidas no repositório antes da primeira execução:
 
-```powershell
-# Verificação de Hash SHA256 no PowerShell
-Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256 | Format-List
-```
+    ```powershell
+    # Verificação de Hash SHA256 no PowerShell
+    Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256 | Format-List
+    ```
 
 ### Controles de Segurança Implementados
 
 - **Isolamento de Processo:** Sem tráfego de rede ou chamadas de API externas.
+
 - **Sanitização de Escopo de Execução:** O uso do `-ExecutionPolicy Bypass` limita-se ao processo filho e não afeta a postura global de execução do repositório/SO.
+
 - **Tratamento de Arquivo de Saída:** O filtro `-Exclude $outputFile` previne corrupção de arquivo por auto-ingestão ou substituição acidental durante a leitura.
 
 ---
@@ -186,4 +209,15 @@ Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256
 ## 💡 Boas Práticas e Recomendações
 
 1. **Ordem de Fusão:** O script mescla os arquivos com base na **ordem alfabética dos nomes dos arquivos**. Para garantir uma ordem específica, renomeie os arquivos com prefixos numéricos (ex: `01_Introducao.pdf`, `02_Relatorio.pdf`, `03_Anexos.pdf`).
+
 2. **Ambiente Corporativo:** Em pipelines CI/CD ou automações em lote, recomenda-se armazenar as DLLs em um repositório centralizado de artefatos (Nexus, JFrog Artifactory ou Azure Artifacts) e realizar o download via hash verificado.
+
+---
+
+## 📜 Licença
+
+Este projeto está sob a licença [MIT](LICENSE).
+
+---
+
+*Desenvolvido por **Marcelo Soares** | Especialista em Segurança da Informação e Computação Forense.*

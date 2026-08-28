@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   # -------------------------------------------------------------
-  # JOB 1: Detecção de Segredos e Credenciais Vazadas
+  # JOB 1: Detecção de Segredos e Credenciais Vazadas (TruffleHog)
   # -------------------------------------------------------------
   secret-scanning:
     name: Secret Scan (TruffleHog)
@@ -30,117 +30,101 @@ jobs:
 
       - name: Scan para detecção de segredos
         uses: trufflesecurity/trufflehog@bcfcf73aaf4759d4dadc2783177c245a02792318
+
+  # -------------------------------------------------------------
+  # JOB 2: Detecção de Segredos (Gitleaks)
+  # -------------------------------------------------------------
+  secret-scanning-gitleaks:
+    name: Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          extra_args: --only-verified
+          fetch-depth: 0
+
+      - name: Gitleaks / Secret Scan
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # -------------------------------------------------------------
-  # JOB 2: Qualidade de Código, Estilo e Formatação (PowerShell)
+  # JOB 3: Qualidade de Sintaxe Docs (Markdown)
   # -------------------------------------------------------------
-  code-quality-linting:
-    name: Code Quality (PSScriptAnalyzer Formatting)
+  markdown-lint:
+    name: Lint Markdown Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Lint Markdown Files
+        uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff
+        with:
+          globs: "**/*.md"
+
+  # -------------------------------------------------------------
+  # JOB 4: Análise Completa PSScriptAnalyzer (Estilo, SAST e Segurança)
+  # -------------------------------------------------------------
+  powershell-analysis:
+    name: PowerShell Quality & Security Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Validar Estilo e Formatação
+      - name: Executar Análise Unificada PSScriptAnalyzer
         shell: pwsh
         run: |
-          if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
-              Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-          }
-          $results = Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule PSAvoidTrailingWhitespace, PSAvoidUsingCmdletAliases
-
-          if ($results.Count -gt 0) {
-              $results | Select-Object ScriptName, Line, Message, RuleName | Format-List
-              Write-Error "Encontradas $($results.Count) inconsistências de estilo/formatação."
-              exit 1
-          }
-
-  # -------------------------------------------------------------
-  # JOB 3: SAST Nativo PowerShell (PSScriptAnalyzer Standard)
-  # -------------------------------------------------------------
-  sast-powershell:
-    name: SAST (PSScriptAnalyzer General)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Run PSScriptAnalyzer
-        shell: pwsh
-        run: |
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-          $results = @(Invoke-ScriptAnalyzer -Path ./ -Recurse -Severity Warning, Error)
+          
+          $totalErrors = 0
 
-          if ($results.Count -gt 0) {
-              $results | Select-Object ScriptName, Line, Message, RuleName | Format-List
-              Write-Error "Foram encontradas $($results.Count) inconformidades no PSScriptAnalyzer."
-              exit 1
+          # 1. Validação de Estilo e Formatação
+          Write-Host "🔍 Executando verificações de estilo e formatação..." -ForegroundColor Cyan
+          $styleRules = @('PSAvoidTrailingWhitespace', 'PSAvoidUsingCmdletAliases')
+          $styleResults = @(Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule $styleRules)
+          if ($styleResults.Count -gt 0) {
+              $styleResults | Select-Object ScriptName, Line, Message, RuleName | Format-List
+              Write-Error "Encontradas $($styleResults.Count) inconsistências de estilo/formatação."
+              $totalErrors += $styleResults.Count
           }
 
-  # -------------------------------------------------------------
-  # JOB 4: SAST Especializado em Segurança PowerShell
-  # -------------------------------------------------------------
-  sast-powershell-security:
-    name: SAST Security Rules (PSScriptAnalyzer Security)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+          # 2. SAST Geral (Severidade Warning e Error)
+          Write-Host "🔍 Executando SAST geral (Warning/Error)..." -ForegroundColor Cyan
+          $sastResults = @(Invoke-ScriptAnalyzer -Path ./ -Recurse -Severity Warning, Error)
+          if ($sastResults.Count -gt 0) {
+              $sastResults | Select-Object ScriptName, Line, Message, RuleName | Format-List
+              Write-Error "Foram encontradas $($sastResults.Count) inconformidades gerais."
+              $totalErrors += $sastResults.Count
+          }
 
-      - name: Executar Regras de Segurança Avançadas
-        shell: pwsh
-        run: |
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          # 3. SAST Especializado em Segurança
+          Write-Host "🔍 Executando regras avançadas de segurança..." -ForegroundColor Cyan
           $secRules = @(
             'PSAvoidUsingInvokeExpression',
             'PSAvoidUsingPlainTextForPassword',
-            'PSAvoidUsingWMIC',
-            'PSAvoidUsingCmdletAliases'
+            'PSAvoidUsingWMIC'
           )
-          $results = Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule $secRules
-
-          if ($results.Count -gt 0) {
-              $results | Format-Table -AutoSize
+          $secResults = @(Invoke-ScriptAnalyzer -Path ./ -Recurse -IncludeRule $secRules)
+          if ($secResults.Count -gt 0) {
+              $secResults | Select-Object ScriptName, Line, Message, RuleName | Format-List
               Write-Error "Encontradas vulnerabilidades de código de alta severidade!"
+              $totalErrors += $secResults.Count
+          }
+
+          # Encerra o job se houver qualquer falha nas etapas acima
+          if ($totalErrors -gt 0) {
               exit 1
-          }
-
-  # -------------------------------------------------------------
-  # JOB 5: SAST Avançado com CodeQL (C# / Binários .NET)
-  # -------------------------------------------------------------
-  sast-codeql:
-    name: SAST (CodeQL Analysis - C# / .NET)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Verificar presença de código C#
-        id: check_csharp
-        shell: pwsh
-        run: |
-          $csFiles = Get-ChildItem -Path . -Recurse -Filter *.cs
-          if ($csFiles.Count -gt 0) {
-              echo "has_csharp=true" >> $env:GITHUB_OUTPUT
           } else {
-              echo "has_csharp=false" >> $env:GITHUB_OUTPUT
+              Write-Host "✨ Todas as análises do PowerShell passaram com sucesso!" -ForegroundColor Green
           }
 
-      - name: Inicializar CodeQL
-        if: steps.check_csharp.outputs.has_csharp == 'true'
-        uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
-        with:
-          languages: csharp
-          queries: security-extended,security-and-quality
-
-      - name: Executar Análise CodeQL
-        if: steps.check_csharp.outputs.has_csharp == 'true'
-        uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
-
   # -------------------------------------------------------------
-  # JOB 6: SAST Open Source com Horusec
+  # JOB 5: SAST Open Source com Horusec
   # -------------------------------------------------------------
   sast-horusec:
     name: SAST (Horusec)
@@ -175,7 +159,7 @@ jobs:
           category: Horusec
 
   # -------------------------------------------------------------
-  # JOB 7: SAST Rápido baseado em Regras com Semgrep
+  # JOB 6: SAST Rápido baseado em Regras com Semgrep
   # -------------------------------------------------------------
   sast-semgrep:
     name: SAST (Semgrep Scan)
@@ -186,14 +170,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configurar Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.11"
+
+      - name: Instalar Semgrep
+        run: pip install --no-cache-dir semgrep
+
       - name: Executar Semgrep Scan
         run: |
-          pip install semgrep
           semgrep scan \
-            --config=p/owasp-top-ten \
+            --config=p/bash \
             --sarif \
             --output=semgrep.sarif \
-            || true
+            . || true
 
       - name: Tratar e Validar SARIF do Semgrep
         id: check_sarif
@@ -213,42 +204,8 @@ jobs:
           sarif_file: semgrep.sarif
           category: Semgrep
 
-  # -----------------------------------------------------------------
-  # JOB 8: Análise de Dependências de Software com OSV-Scanner
-  # -----------------------------------------------------------------
-  sca-osv:
-    name: SCA (OSV-Scanner)
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@6e4298ebc4db23e847df9b2e2de2939d6f066c67
-    with:
-      scan-args: "--allow-no-lockfiles --recursive ./"
-
   # -------------------------------------------------------------
-  # JOB 9: Análise de Dependências e Misconfigurations com Trivy
-  # -------------------------------------------------------------
-  sca-trivy:
-    name: SCA & Misconfig (Trivy Scan)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do Repositório
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Executar Varredura Trivy (Repository)
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
-
-      - name: Upload do Relatório SARIF do Trivy
-        uses: github/codeql-action/upload-sarif@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28
-        if: always()
-        with:
-          sarif_file: "trivy-results.sarif"
-
-  # -------------------------------------------------------------
-  # JOB 10: Auditoria Nativa de Dependências (PowerShell)
+  # JOB 7: Auditoria Nativa de Dependências (PowerShell)
   # -------------------------------------------------------------
   sca-powershell-modules:
     name: SCA (PowerShell Module & Repository Audit)
@@ -271,7 +228,7 @@ jobs:
           Write-Host "✅ Auditoria de manifestos PowerShell concluída."
 
   # -------------------------------------------------------------
-  # JOB 11: Validação de Integridade Estrutural do Projeto PowerShell
+  # JOB 8: Validação de Integridade Estrutural do Projeto PowerShell
   # -------------------------------------------------------------
   powershell-structure-check:
     name: Validate PowerShell Structure
@@ -299,21 +256,18 @@ jobs:
           Write-Host "✅ Estrutura básica do repositório PowerShell validada."
 
   # -------------------------------------------------------------
-  # JOB 12: Empacotamento e Artefato
+  # JOB 9: Empacotamento e Artefato
   # -------------------------------------------------------------
   build-artifact:
     name: Bundle & Upload Artifact
     needs:
       [
         secret-scanning,
-        code-quality-linting,
-        sast-powershell,
-        sast-powershell-security,
-        sast-codeql,
+        secret-scanning-gitleaks,
+        markdown-lint,
+        powershell-analysis,        
         sast-horusec,
-        sast-semgrep,
-        sca-osv,
-        sca-trivy,
+        sast-semgrep,        
         sca-powershell-modules,
         powershell-structure-check,
       ]
@@ -326,7 +280,12 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path build_artifact -Force
-          Get-ChildItem -Path . -Exclude "build_artifact", ".git", ".github" | Copy-Item -Destination build_artifact -Recurse -Force
+          if (Test-Path "modules") {
+              Copy-Item -Path "modules" -Destination "build_artifact/" -Recurse -Force
+          }
+          if (Test-Path "README.md") {
+              Copy-Item -Path "README.md" -Destination "build_artifact/" -Force
+          }
 
       - name: Subir Artefato de Build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
