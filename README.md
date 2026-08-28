@@ -21,23 +21,15 @@ Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF loc
 
 ## 📋 Sumário
 
-- [Visão Geral](#visão-geral)
-
-- [Por que usar esta solução? (Perspectiva DevSecOps)](#por-que-usar-esta-solução-perspectiva-devsecops)
-
-- [Pré-requisitos](#pré-requisitos)
-
-- [Estrutura do Repositório](#estrutura-do-repositório)
-
+- [Visão Geral](#visao-geral)
+- [Por que usar esta solução? (Perspectiva DevSecOps)](#por-que-usar-esta-solucao-perspectiva-devsecops)
+- [Pré-requisitos](#pre-requisitos)
+- [Estrutura do Repositório](#estrutura-do-repositorio)
 - [Guia de Uso Passo a Passo](#guia-de-uso-passo-a-passo)
-
-- [Funcionamento do Código](#funcionamento-do-código)
-
-- [Segurança e Compliance (DevSecOps)](#segurança-e-compliance-devsecops)
-
-- [Solução de Problemas (Troubleshooting)](#solução-de-problemas-troubleshooting)
-
-- [Boas Práticas e Recomendações](#boas-práticas-e-recomendações)
+- [Funcionamento do Código](#funcionamento-do-codigo)
+- [Segurança e Compliance (DevSecOps)](#seguranca-e-compliance-devsecops)
+- [Solução de Problemas (Troubleshooting)](#solucao-de-problemas-troubleshooting)
+- [Boas Práticas e Recomendações](#boas-praticas-e-recomendacoes)
 
 ---
 
@@ -70,6 +62,7 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 3. **Bibliotecas .NET (incluídas no diretório):**
 
    - `BouncyCastle.Cryptography.dll`
+
    - `itextsharp.dll`
 
 ---
@@ -78,7 +71,7 @@ Esta ferramenta resolve esse problema permitindo a manipulação de PDFs **100% 
 
 ```text
 .
-├── .gitignore                     # Aquivo de configuração do git
+├── .gitignore                      # Aquivo de configuração do git
 ├── BouncyCastle.Cryptography.dll  # Biblioteca de criptografia / dependência iTextSharp
 ├── itextsharp.dll                 # Motor de manipulação e montagem de PDFs (.NET)
 ├── joinPDFs_alternative.ps1       # Script de automação PowerShell alternativo
@@ -220,4 +213,4 @@ Este projeto está sob a licença [MIT](LICENSE).
 
 ---
 
-*Desenvolvido por **Marcelo Soares** | Especialista em Segurança da Informação e Computação Forense.*
+_Desenvolvido por **Marcelo Soares** | Especialista em Segurança da Informação e Computação Forense._
