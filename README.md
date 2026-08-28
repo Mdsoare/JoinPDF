@@ -22,7 +22,7 @@ Utilitário em PowerShell para fusão (_merge_) automatizada de arquivos PDF loc
 ## 📋 Sumário
 
 - [Visão Geral](#-visão-geral)
-- [Por que usar esta solução](#-por-que-usar-esta-solução)
+- [Por que usar esta solução](#por-que-usar-esta-solução)
 - [Pré-requisitos](#-pré-requisitos)
 - [Estrutura do Repositório](#-estrutura-do-repositório)
 - [Guia de Uso Passo a Passo](#-guia-de-uso-passo-a-passo)
