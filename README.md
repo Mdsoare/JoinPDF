@@ -111,11 +111,11 @@ Copie os **três arquivos** abaixo para a pasta onde estão armazenados os arqui
 
 Execute o comando abaixo no PowerShell:
 
-    ```powershell
-    powershell -ExecutionPolicy Bypass -File .\joinPDFs.ps1
-    ```
+```PowerShell
+powershell -ExecutionPolicy Bypass -File .\joinPDFs.ps1
+```
 
-    > **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (_Execution Policy_).
+> **Nota:** A flag `-ExecutionPolicy Bypass` garante a execução do script no escopo da sessão atual sem alterar a política de execução global do sistema (_Execution Policy_).
 
 ---
 
@@ -133,7 +133,7 @@ O script ignorará automaticamente o arquivo `Resultado_Final.pdf` em execuçõe
 
 O script `joinPDFs.ps1` utiliza o ecossistema .NET nativo e as DLLs do iTextSharp para realizar a mesclagem diretamente em memória:
 
-    ```powershell
+```PowerShell
     # 1. Carregamento dinamico das DLLs locais .NET
     Add-Type -Path (Resolve-Path ".\BouncyCastle.Cryptography.dll")
     Add-Type -Path (Resolve-Path ".\itextsharp.dll")
@@ -150,7 +150,7 @@ O script `joinPDFs.ps1` utiliza o ecossistema .NET nativo e as DLLs do iTextShar
 
     # 4. Iteração página a página entre todos os PDFs encontrados
     foreach ($file in $pdfs) {
-        Write-Host "Processando: $($file.Name)"
+        Write-Output "Processando: $($file.Name)"
         $reader = New-Object iTextSharp.text.pdf.PdfReader($file.FullName)
         for ($i = 1; $i -le $reader.NumberOfPages; $i++) {
             $page = $copy.GetImportedPage($reader, $i)
@@ -162,8 +162,8 @@ O script `joinPDFs.ps1` utiliza o ecossistema .NET nativo e as DLLs do iTextShar
     # 5. Encerramento dos handlers de arquivo e desalocação de memória
     $doc.Close()
     $stream.Close()
-    Write-Host "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green
-    ```
+    Write-Output "Pronto! Arquivo $outputFile criado com sucesso." -ForegroundColor Green
+```
 
 ---
 
@@ -173,10 +173,10 @@ O script `joinPDFs.ps1` utiliza o ecossistema .NET nativo e as DLLs do iTextShar
 
 Para garantir a integridade da cadeia de suprimentos de software (_Software Supply Chain Security_), valide as assinaturas/hashes das DLLs fornecidas no repositório antes da primeira execução:
 
-    ```powershell
+```PowerShell
     # Verificação de Hash SHA256 no PowerShell
     Get-FileHash .\itextsharp.dll, .\BouncyCastle.Cryptography.dll -Algorithm SHA256 | Format-List
-    ```
+```
 
 ### Controles de Segurança Implementados
 
